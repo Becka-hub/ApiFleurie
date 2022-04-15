@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Knp\Component\Pager\PaginatorInterface;
 use App\Shared\Reponses;
 use App\Shared\Messages;
 use App\Service\Service;
@@ -30,7 +31,7 @@ class FleurieController extends AbstractController
     {
         $libelle = $request->request->get('libelle');
         $prix = $request->request->get('prix');
-        $description = $request->request->get('dl0escription');
+        $description = $request->request->get('description');
         $idCategory = $request->request->get('idCategory');
         $image = $request->files->get('image');
 
@@ -71,6 +72,26 @@ class FleurieController extends AbstractController
         $this->service->em()->flush();
         return $this->reponses->success(null, null, Messages::SUCCESS_DELETE);
     }
+
+    #[Route('/fleuriePagination/{page}', name: 'afficheFleuriePagination', methods: 'GET')]
+    public function afficheFleuriePagination($page,Request $request,PaginatorInterface $paginator): Response
+    {
+        $fleuries = $this->repository->fleurieRepository()->findAll();
+
+        $limit=6;
+        $fleurieData = $paginator->paginate(
+            array_map(function (Fleurie $fleurie) {
+            return $fleurie->tojson();
+        }, $fleuries),
+            $request->query->getInt('page',$page),
+            $limit
+        );
+
+        $totalPage=count($fleuries)/$limit;
+
+        return $this->reponses->successPagination($fleurieData, count($fleuries),$totalPage, Messages::SUCCESS);
+    }
+
 
     #[Route('/fleurie', name: 'afficheFleurie', methods: 'GET')]
     public function afficheFleurie(): Response

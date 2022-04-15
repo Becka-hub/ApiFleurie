@@ -29,6 +29,9 @@ class AuthController extends AbstractController
     public function inscription(): Response
     {
         $data = $this->service->json_decode();
+        if(!isset($data->nom,$data->prenom,$data->adresse,$data->email,$data->password,$data->photo) || ($data->nom==="" || $data->prenom==="" || $data->adresse===""||$data->email===""||$data->password===""||$data->photo==="")){
+            return $this->reponses->error(Messages::FORM_INVALID);
+        }
         $user = $this->repository->userRepository()->findOneByEmail($data->email);
         if ($user) {
             return $this->reponses->error(Messages::MAILUSED);
@@ -55,6 +58,9 @@ class AuthController extends AbstractController
     public function login(JWTTokenManagerInterface $tokenManager): Response
     {
         $data = $this->service->json_decode();
+        if(!isset($data->email,$data->password) || ($data->email==="" || $data->password==="")){
+            return $this->reponses->error(Messages::FORM_INVALID);
+        }
         $user = $this->repository->userRepository()->findOneByEmail($data->email);
         if (!$user) {
             return $this->reponses->error(Messages::USER_NOT_FOUND);

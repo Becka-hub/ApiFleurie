@@ -34,6 +34,19 @@ class Reponses extends AbstractController
             'token'=>$token
         ], $message['code']);
     }
+
+    public function successPagination($donner = null, $rows=null,$totalPage=null, array $message =  Messages::SUCCESS): Response
+    {
+
+        return  $this->json([
+            'status' => $message['status'],
+            'title' => $message['title'],
+            'message'=> $message['message'],
+            'totalRows'=> $rows,
+            'donner' => $donner,
+            'totalPage'=>$totalPage
+        ], $message['code']);
+    }
     public function error(array $message =  Messages::ERROR):Response
     { 
         return $this->json([

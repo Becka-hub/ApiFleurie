@@ -30,8 +30,14 @@ class CommandeController extends AbstractController
     #[Route('/commande', name: 'ajouteCommande', methods: 'POST')]
     public function ajouteCommande(): Response
     {
-        $data = $this->service->json_decode();
+        $data=$this->service->json_decode();
+        if(!isset($data->achat,$data->prixTotal,$data->nom,$data->prenom,$data->telephone,$data->adresseLivraison,$data->idUser) || ($data->achat==="" || $data->prixTotal===""||$data->nom===""||$data->prenom===""||$data->telephone===""||$data->adresseLivraison===""||$data->idUser==="")){
+            return $this->reponses->error(Messages::FORM_INVALID);
+        }
+
         $user = $this->repository->userRepository()->findOneById($data->idUser);
+
+;
 
         $commande = new Commande();
         $commande->setAchat($data->achat);
@@ -49,9 +55,19 @@ class CommandeController extends AbstractController
     #[Route('/commande/{id}', name: 'afficheCommande', methods: 'GET')]
     public function afficheCommande($id): Response
     {
-        $commandes = $this->repository->commandeRepository()->findByUser($id);
+        $commandes = $this->repository->commandeRepository()->findBy(['user'=>$id],['id'=>'DESC']);
         return $this->reponses->success(array_map(function (Commande $commande) {
             return $commande->tojson();
         }, $commandes), count($commandes), Messages::SUCCESS);
     }
+
+    #[Route('/commande/{id}', name: 'suprimerCommande', methods: 'DELETE')]
+    public function suprimerCommande($id): Response
+    {
+        $commande = $this->repository->commandeRepository()->find($id);
+        $this->service->em()->remove($commande);
+        $this->service->em()->flush();
+        return $this->reponses->success(null,null,Messages::SUCCESS_DELETE);
+    }
+
 }

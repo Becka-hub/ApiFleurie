@@ -1,0 +1,9 @@
+<h1>SHOP FLEURIE</h1>
+<h2>Bonjour {{nom}} {{prenom}}!</h2>
+<p>Cliquer le lien pour rediriger vers la page du changement de mot de passe.</p>
+
+<a href='http://localhost:3000/reset/{{resetToken.token}}'>Changer mot de passe</a> 
+
+<p>Cette lien est expirer dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+
+
